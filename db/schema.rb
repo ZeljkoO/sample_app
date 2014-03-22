@@ -11,7 +11,20 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140114135620) do
+ActiveRecord::Schema.define(:version => 20140308174510) do
+
+  create_table "demand_and_product_returns", :force => true do |t|
+    t.integer  "period_id"
+    t.integer  "product_id"
+    t.float    "demand"
+    t.float    "return"
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
+    t.float    "production_quantity"
+    t.float    "remanufacturing_quantity"
+    t.float    "serviceable_inventory"
+    t.float    "recoverable_inventory"
+  end
 
   create_table "microposts", :force => true do |t|
     t.string   "content"
@@ -21,6 +34,45 @@ ActiveRecord::Schema.define(:version => 20140114135620) do
   end
 
   add_index "microposts", ["user_id", "created_at"], :name => "index_microposts_on_user_id_and_created_at"
+
+  create_table "periods", :force => true do |t|
+    t.integer  "number"
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
+    t.float    "capacity"
+    t.float    "remanufacturing_capacity"
+  end
+
+  create_table "production_parameters", :force => true do |t|
+    t.integer  "product_id"
+    t.float    "production_cost"
+    t.float    "setup_cost"
+    t.float    "setup_time"
+    t.float    "holding_cost"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+    t.float    "production_time"
+    t.float    "initial_inventory"
+  end
+
+  create_table "products", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
+    t.string   "product_family"
+  end
+
+  create_table "remanufacturing_parameters", :force => true do |t|
+    t.integer  "product_id"
+    t.float    "remanufacturing_cost"
+    t.float    "setup_cost"
+    t.float    "setup_time"
+    t.float    "holding_cost"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+    t.float    "remanufacturing_time"
+    t.float    "initial_inventory"
+  end
 
   create_table "users", :force => true do |t|
     t.string   "name"

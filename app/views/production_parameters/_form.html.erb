@@ -1,0 +1,49 @@
+<div class="row">
+  <div class="span6 offset3">
+    <%= form_for(@production_parameter) do |f| %>
+        <% if @production_parameter.errors.any? %>
+            <div id="error_explanation">
+              <h2><%= pluralize(@production_parameter.errors.count, "error") %> prohibited this production_parameter from being saved:</h2>
+
+              <ul>
+                <% @production_parameter.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+        <% end %>
+
+        <div class="field">
+          <%= f.label 'Select Product' %><br />
+          <%= f.collection_select :product_id, Product.all, :id, :name %>
+        </div>
+        <div class="field">
+          <%= f.label 'Production Cost' %><br />
+          <%= f.text_field :production_cost %>
+        </div>
+        <div class="field">
+          <%= f.label 'Production Time' %><br />
+          <%= f.text_field :production_time %>
+        </div>
+        <div class="field">
+          <%= f.label 'Setup Cost' %><br />
+          <%= f.text_field :setup_cost %>
+        </div>
+        <div class="field">
+          <%= f.label 'Setup Time' %><br />
+          <%= f.text_field :setup_time %>
+        </div>
+        <div class="field">
+          <%= f.label 'Holding Cost' %><br />
+          <%= f.text_field :holding_cost %>
+        </div>
+        <div class="field">
+          <%= f.label 'Initial Inventory' %><br />
+          <%= f.text_field :initial_inventory %>
+        </div>
+        <div class="actions">
+          <%= f.submit 'Save Parameters' %>
+        </div>
+    <% end %>
+  </div>
+</div>

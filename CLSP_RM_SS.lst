@@ -1,0 +1,953 @@
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 1
+CLSP-RM-SS
+C o m p i l a t i o n
+
+
+   2   
+   3  Sets
+   4           k                       Produkte
+   5           t                       Perioden;
+   6   
+   7  Parameters
+   8           c(t)                    vorhandene Produktionskapazität in der Periode t
+   9           cr(t)                   vorhandene Wiederaufbereitungskapazität in der Periode t
+  10           d(k,t)                  Nachfrage nach Produkt k in der Periode t
+  11           hc(k)                   holding Kosten für Produkt k pro Einheit und Periode
+  12           hcr(k)                  holding Kosten für Produktrückkehrer von Produkt k pro Einheit und Periode
+  13           M                       hinreichen große Zahl für Produkt k in Periode t
+  14           pc(k)                   Produktionskosten pro Einheit des Produkts k
+  15           pcr(k)                  Wiederaufbereitungskosten pro Einheit des Produkts k
+  16           r(k,t)                  Produktrückkehrer von Produkt k in der Periode t
+  17           sc(k)                   Rüstkosten für Produkt k
+  18           scr(k)                  Rüstkosten für Produktrückkehrer des Produkts k
+  19           tp(k)                   Produktionsdauer pro Einheit des Produkts k
+  20           tpr(k)                  Wiederaufbereitungsdauer pro Einheit des Produkts k
+  21           ts(k)                   Rüstdauer für Produktion des Produkts k
+  22           tsr(k)                  Rüstdauer für Wiederaufbereitung des Produkts k
+  23           Y0(k)                   Lageranfangsbestand des absatzfähigen Produkts k
+  24           Y0r(k)                  Lageranfangsbestand von Produktrückkehrern des Produkts k;
+  25   
+  26  Positive Variables
+  27           Q(k,t)                  Produktionsmenge des Produkts k in Periode t
+  28           Qr(k,t)                 Wiederaufbereitungsmenge des Produkts k in Periode t
+  29           Y(k,t)                  Lagerbestand des Produkts k am Ende der Periode t
+  30           Yr(k,t)                 Lagerbestand von Produktrückkehrern des Produkts k am Ende der Periode t;
+  31   
+  32  Binary Variables
+  33           gamma(k,t)              binaere Rüstvariable für Produkt k in Periode t
+  34           gammar(k,t)             binaere Rüstvariable für Wiederverarbeitung des Produkts k in Periode t
+  35  ;
+  36   
+  37  Variables
+  38           ZF                      Zielfunktionswert;
+  39   
+  40  Equations
+  41           ZFkt                    Minimierung der Gesamtkosten
+  42           Lbil(k,t)               Lagerbilanzgleichung für verarbeitete Produkte
+  43           Lbilr(k,t)              Lagerbilanzgleichung für Produktrückkehrer
+  44           Kapres(t)               Kapazitaetrestriktion für Produktion
+  45           Kapresr(t)              Kapazitaetsrestriktion für Wiederverarbeitung
+  46           Ruestbedingung(k,t)     Ruestbedingung für Produktion
+  47           Ruestbedingungr(k,t)    Ruestbedingung für Wiederverarbeitung
+  48  ;
+  49   
+  50  ZFkt..                   ZF =e= sum((k,t), hc(k)*Y(k,t) + hcr(k)*Yr(k,t)) + sum((k,t), sc(k)*gamma(k,t) + scr(k)*gammar(k,t)) + sum((k,t), pc(k)*Q(k,t) + pcr(k)*Qr(k,t));
+  51  Lbil(k,t)..              Y0(k)$(ord(t)=1) + Y(k,t-1)$(ord(t)>1) + Q(k,t) + Qr(k,t) =e= d(k,t) + Y(k,t);
+  52  Lbilr(k,t)..             Y0r(k)$(ord(t)=1) + Yr(k,t-1)$(ord(t)>1) + r(k,t) =e= Qr(k,t) + Yr(k,t);
+  53  Kapres(t)..              sum(k, tp(k)*Q(k,t) + ts(k)*gamma(k,t)) =l= c(t);
+  54  Kapresr(t)..             sum(k, tpr(k)*Qr(k,t) + tsr(k)*gammar(k,t)) =l= cr(t);
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 2
+CLSP-RM-SS
+C o m p i l a t i o n
+
+
+  55  Ruestbedingung(k,t)..    Q(k,t) =l= M*gamma(k,t);
+  56  Ruestbedingungr(k,t)..   Qr(k,t) =l= M*gammar(k,t);
+  57   
+  58  Model CLSPRMSS /all/;
+  59   
+INCLUDE    C:\Sites\rails_projects\sample_app\CLSP_RM_SS_Input.inc
+  61  Set t /
+  62  t2
+  63  t4
+  64  t6
+  65  t10
+  66  /
+  67   
+  68  k /
+  69  k7
+  70  k8
+  71  k11
+  72  k12
+  73  /
+  74   
+  75  ;
+  76   
+  77   
+  78  Parameter
+  79    pc(k) /
+  80  k7  100.0
+  81  k8  100.0
+  82  k11  100.0
+  83  k12  100.0
+  84  /
+  85   
+  86   
+  87  pcr(k) /
+  88  k7  50.0
+  89  k8  50.0
+  90  k11  50.0
+  91  k12  50.0
+  92  /
+  93   
+  94   
+  95  sc(k) /
+  96  k7  1000.0
+  97  k8  1000.0
+  98  k11  1000.0
+  99  k12  1000.0
+ 100  /
+ 101   
+ 102   
+ 103  scr(k) /
+ 104  k7  1000.0
+ 105  k8  1000.0
+ 106  k11  1000.0
+ 107  k12  1000.0
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 3
+CLSP-RM-SS
+C o m p i l a t i o n
+
+
+ 108  /
+ 109   
+ 110   
+ 111  hc(k) /
+ 112  k7  2.0
+ 113  k8  2.0
+ 114  k11  2.0
+ 115  k12  2.0
+ 116  /
+ 117   
+ 118   
+ 119  hcr(k) /
+ 120  k7  1.0
+ 121  k8  1.0
+ 122  k11  1.0
+ 123  k12  1.0
+ 124  /
+ 125   
+ 126   
+ 127  tp(k) /
+ 128  k7  2.0
+ 129  k8  2.0
+ 130  k11  2.0
+ 131  k12  2.0
+ 132  /
+ 133   
+ 134   
+ 135  tpr(k) /
+ 136  k7  2.0
+ 137  k8  2.0
+ 138  k11  2.0
+ 139  k12  2.0
+ 140  /
+ 141   
+ 142   
+ 143  ts(k) /
+ 144  k7  30.0
+ 145  k8  30.0
+ 146  k11  30.0
+ 147  k12  30.0
+ 148  /
+ 149   
+ 150   
+ 151  tsr(k) /
+ 152  k7  30.0
+ 153  k8  30.0
+ 154  k11  30.0
+ 155  k12  30.0
+ 156  /
+ 157   
+ 158   
+ 159  c(t) /
+ 160  t2  500.0
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 4
+CLSP-RM-SS
+C o m p i l a t i o n
+
+
+ 161  t4  500.0
+ 162  t6  500.0
+ 163  t10  500.0
+ 164  /
+ 165   
+ 166   
+ 167  cr(t) /
+ 168  t2  500.0
+ 169  t4  500.0
+ 170  t6  500.0
+ 171  t10  500.0
+ 172  /
+ 173   
+ 174   
+ 175  Y0(k) /
+ 176  k7  0.0
+ 177  k8  0.0
+ 178  k11  0.0
+ 179  k12  0.0
+ 180  /
+ 181   
+ 182   
+ 183  Y0r(k) /
+ 184  k7  0.0
+ 185  k8  0.0
+ 186  k11  0.0
+ 187  k12  0.0
+ 188  /
+ 189   
+ 190   
+ 191  d(k,t) /
+ 192  k7.t2  120.0
+ 193  k8.t2  60.0
+ 194  k11.t2  50.0
+ 195  k12.t2  20.0
+ 196  k7.t4  80.0
+ 197  k8.t4  50.0
+ 198  k11.t4  100.0
+ 199  k12.t4  70.0
+ 200  k7.t6  80.0
+ 201  k8.t6  80.0
+ 202  k11.t6  120.0
+ 203  k12.t6  100.0
+ 204  k7.t10  70.0
+ 205  k8.t10  90.0
+ 206  k11.t10  160.0
+ 207  k12.t10  140.0
+ 208  /
+ 209   
+ 210   
+ 211  r(k,t) /
+ 212  k7.t2  70.0
+ 213  k8.t2  30.0
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 5
+CLSP-RM-SS
+C o m p i l a t i o n
+
+
+ 214  k11.t2  30.0
+ 215  k12.t2  20.0
+ 216  k7.t4  30.0
+ 217  k8.t4  30.0
+ 218  k11.t4  60.0
+ 219  k12.t4  30.0
+ 220  k7.t6  40.0
+ 221  k8.t6  50.0
+ 222  k11.t6  70.0
+ 223  k12.t6  40.0
+ 224  k7.t10  30.0
+ 225  k8.t10  50.0
+ 226  k11.t10  40.0
+ 227  k12.t10  40.0
+ 228  /
+ 229   
+ 230  ;
+ 231   
+ 232  Option optcr =0.0;
+ 233  M=100000;
+ 234   
+ 235  Solve CLSPRMSS using mip minimizing ZF;
+ 236   
+ 237  display
+ 238           Q.l
+ 239           Qr.l
+ 240           Y.l
+ 241           Yr.l
+ 242   
+ 243  file outputfile1 / 'Produktionsprogramm.txt'/;
+ 244  put outputfile1;
+ 245   
+ 246  put 'Zielfunktionswert:  ',ZF.l /
+ 247   
+ 248  loop(t,
+ 249       loop(k,
+ 250               put t.tl:0, ' ; ' k.tl:0, ' ; ', Q.l(k,t), ' ; ' Qr.l(k,t), ' ; ' Y.l(k,t), ' ; ' Yr.l(k,t)/
+ 251       );
+ 252  );
+ 253   
+ 254  putclose outputfile1;
+ 255   
+ 256  file outputfile2 / 'Zielfunktionswert.txt'/;
+ 257  put outputfile2;
+ 258   
+ 259   
+ 260  put 'Zielfunktionswert:  ',ZF.l /
+ 261  put '**************************'
+ 262   
+ 263  putclose outputfile2;
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 6
+CLSP-RM-SS
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Sites\rails_projects\sample_app\CLSP_RM_SS.gms
+     2       60 INCLUDE        1      60  .C:\Sites\rails_projects\sample_app\CLSP_RM_SS_Input.inc
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 Mb  WEX239-239 Sep 26, 2012
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 7
+CLSP-RM-SS
+Equation Listing    SOLVE CLSPRMSS Using MIP From line 235
+
+
+---- ZFkt  =E=  Minimierung der Gesamtkosten
+
+ZFkt..  - 100*Q(k7,t2) - 100*Q(k7,t4) - 100*Q(k7,t6) - 100*Q(k7,t10) - 100*Q(k8,t2) - 100*Q(k8,t4) - 100*Q(k8,t6) - 100*Q(k8,t10) - 100*Q(k11,t2) - 100*Q(k11,t4) - 100*Q(k11,t6) - 100*Q(k11,t10) - 100*Q(k12,t2) - 100*Q(k12,t4) - 100*Q(k12,t6)
+     
+      - 100*Q(k12,t10) - 50*Qr(k7,t2) - 50*Qr(k7,t4) - 50*Qr(k7,t6) - 50*Qr(k7,t10) - 50*Qr(k8,t2) - 50*Qr(k8,t4) - 50*Qr(k8,t6) - 50*Qr(k8,t10) - 50*Qr(k11,t2) - 50*Qr(k11,t4) - 50*Qr(k11,t6) - 50*Qr(k11,t10) - 50*Qr(k12,t2) - 50*Qr(k12,t4)
+     
+      - 50*Qr(k12,t6) - 50*Qr(k12,t10) - 2*Y(k7,t2) - 2*Y(k7,t4) - 2*Y(k7,t6) - 2*Y(k7,t10) - 2*Y(k8,t2) - 2*Y(k8,t4) - 2*Y(k8,t6) - 2*Y(k8,t10) - 2*Y(k11,t2) - 2*Y(k11,t4) - 2*Y(k11,t6) - 2*Y(k11,t10) - 2*Y(k12,t2) - 2*Y(k12,t4) - 2*Y(k12,t6)
+     
+      - 2*Y(k12,t10) - Yr(k7,t2) - Yr(k7,t4) - Yr(k7,t6) - Yr(k7,t10) - Yr(k8,t2) - Yr(k8,t4) - Yr(k8,t6) - Yr(k8,t10) - Yr(k11,t2) - Yr(k11,t4) - Yr(k11,t6) - Yr(k11,t10) - Yr(k12,t2) - Yr(k12,t4) - Yr(k12,t6) - Yr(k12,t10) - 1000*gamma(k7,t2)
+     
+      - 1000*gamma(k7,t4) - 1000*gamma(k7,t6) - 1000*gamma(k7,t10) - 1000*gamma(k8,t2) - 1000*gamma(k8,t4) - 1000*gamma(k8,t6) - 1000*gamma(k8,t10) - 1000*gamma(k11,t2) - 1000*gamma(k11,t4) - 1000*gamma(k11,t6) - 1000*gamma(k11,t10) - 1000*gamma(k12,t2)
+     
+      - 1000*gamma(k12,t4) - 1000*gamma(k12,t6) - 1000*gamma(k12,t10) - 1000*gammar(k7,t2) - 1000*gammar(k7,t4) - 1000*gammar(k7,t6) - 1000*gammar(k7,t10) - 1000*gammar(k8,t2) - 1000*gammar(k8,t4) - 1000*gammar(k8,t6) - 1000*gammar(k8,t10)
+     
+      - 1000*gammar(k11,t2) - 1000*gammar(k11,t4) - 1000*gammar(k11,t6) - 1000*gammar(k11,t10) - 1000*gammar(k12,t2) - 1000*gammar(k12,t4) - 1000*gammar(k12,t6) - 1000*gammar(k12,t10) + ZF =E= 0 ; (LHS = 0)
+     
+
+---- Lbil  =E=  Lagerbilanzgleichung für verarbeitete Produkte
+
+Lbil(k7,t2)..  Q(k7,t2) + Qr(k7,t2) - Y(k7,t2) =E= 120 ; (LHS = 0, INFES = 120 ****)
+     
+Lbil(k7,t4)..  Q(k7,t4) + Qr(k7,t4) + Y(k7,t2) - Y(k7,t4) =E= 80 ; (LHS = 0, INFES = 80 ****)
+     
+Lbil(k7,t6)..  Q(k7,t6) + Qr(k7,t6) + Y(k7,t4) - Y(k7,t6) =E= 80 ; (LHS = 0, INFES = 80 ****)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- Lbilr  =E=  Lagerbilanzgleichung für Produktrückkehrer
+
+Lbilr(k7,t2)..  - Qr(k7,t2) - Yr(k7,t2) =E= -70 ; (LHS = 0, INFES = 70 ****)
+     
+Lbilr(k7,t4)..  - Qr(k7,t4) + Yr(k7,t2) - Yr(k7,t4) =E= -30 ; (LHS = 0, INFES = 30 ****)
+     
+Lbilr(k7,t6)..  - Qr(k7,t6) + Yr(k7,t4) - Yr(k7,t6) =E= -40 ; (LHS = 0, INFES = 40 ****)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- Kapres  =L=  Kapazitaetrestriktion für Produktion
+
+Kapres(t2)..  2*Q(k7,t2) + 2*Q(k8,t2) + 2*Q(k11,t2) + 2*Q(k12,t2) + 30*gamma(k7,t2) + 30*gamma(k8,t2) + 30*gamma(k11,t2) + 30*gamma(k12,t2) =L= 500 ; (LHS = 0)
+     
+Kapres(t4)..  2*Q(k7,t4) + 2*Q(k8,t4) + 2*Q(k11,t4) + 2*Q(k12,t4) + 30*gamma(k7,t4) + 30*gamma(k8,t4) + 30*gamma(k11,t4) + 30*gamma(k12,t4) =L= 500 ; (LHS = 0)
+     
+Kapres(t6)..  2*Q(k7,t6) + 2*Q(k8,t6) + 2*Q(k11,t6) + 2*Q(k12,t6) + 30*gamma(k7,t6) + 30*gamma(k8,t6) + 30*gamma(k11,t6) + 30*gamma(k12,t6) =L= 500 ; (LHS = 0)
+     
+REMAINING ENTRY SKIPPED
+
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 8
+CLSP-RM-SS
+Equation Listing    SOLVE CLSPRMSS Using MIP From line 235
+
+
+---- Kapresr  =L=  Kapazitaetsrestriktion für Wiederverarbeitung
+
+Kapresr(t2)..  2*Qr(k7,t2) + 2*Qr(k8,t2) + 2*Qr(k11,t2) + 2*Qr(k12,t2) + 30*gammar(k7,t2) + 30*gammar(k8,t2) + 30*gammar(k11,t2) + 30*gammar(k12,t2) =L= 500 ; (LHS = 0)
+     
+Kapresr(t4)..  2*Qr(k7,t4) + 2*Qr(k8,t4) + 2*Qr(k11,t4) + 2*Qr(k12,t4) + 30*gammar(k7,t4) + 30*gammar(k8,t4) + 30*gammar(k11,t4) + 30*gammar(k12,t4) =L= 500 ; (LHS = 0)
+     
+Kapresr(t6)..  2*Qr(k7,t6) + 2*Qr(k8,t6) + 2*Qr(k11,t6) + 2*Qr(k12,t6) + 30*gammar(k7,t6) + 30*gammar(k8,t6) + 30*gammar(k11,t6) + 30*gammar(k12,t6) =L= 500 ; (LHS = 0)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- Ruestbedingung  =L=  Ruestbedingung für Produktion
+
+Ruestbedingung(k7,t2)..  Q(k7,t2) - 100000*gamma(k7,t2) =L= 0 ; (LHS = 0)
+     
+Ruestbedingung(k7,t4)..  Q(k7,t4) - 100000*gamma(k7,t4) =L= 0 ; (LHS = 0)
+     
+Ruestbedingung(k7,t6)..  Q(k7,t6) - 100000*gamma(k7,t6) =L= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- Ruestbedingungr  =L=  Ruestbedingung für Wiederverarbeitung
+
+Ruestbedingungr(k7,t2)..  Qr(k7,t2) - 100000*gammar(k7,t2) =L= 0 ; (LHS = 0)
+     
+Ruestbedingungr(k7,t4)..  Qr(k7,t4) - 100000*gammar(k7,t4) =L= 0 ; (LHS = 0)
+     
+Ruestbedingungr(k7,t6)..  Qr(k7,t6) - 100000*gammar(k7,t6) =L= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                         03/13/14 21:16:52 Page 9
+CLSP-RM-SS
+Column Listing      SOLVE CLSPRMSS Using MIP From line 235
+
+
+---- Q  Produktionsmenge des Produkts k in Periode t
+
+Q(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     -100       ZFkt
+        1       Lbil(k7,t2)
+        2       Kapres(t2)
+        1       Ruestbedingung(k7,t2)
+
+Q(k7,t4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     -100       ZFkt
+        1       Lbil(k7,t4)
+        2       Kapres(t4)
+        1       Ruestbedingung(k7,t4)
+
+Q(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     -100       ZFkt
+        1       Lbil(k7,t6)
+        2       Kapres(t6)
+        1       Ruestbedingung(k7,t6)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- Qr  Wiederaufbereitungsmenge des Produkts k in Periode t
+
+Qr(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -50       ZFkt
+        1       Lbil(k7,t2)
+       -1       Lbilr(k7,t2)
+        2       Kapresr(t2)
+        1       Ruestbedingungr(k7,t2)
+
+Qr(k7,t4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -50       ZFkt
+        1       Lbil(k7,t4)
+       -1       Lbilr(k7,t4)
+        2       Kapresr(t4)
+        1       Ruestbedingungr(k7,t4)
+
+Qr(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      -50       ZFkt
+        1       Lbil(k7,t6)
+       -1       Lbilr(k7,t6)
+        2       Kapresr(t6)
+        1       Ruestbedingungr(k7,t6)
+
+REMAINING 13 ENTRIES SKIPPED
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 10
+CLSP-RM-SS
+Column Listing      SOLVE CLSPRMSS Using MIP From line 235
+
+
+---- Y  Lagerbestand des Produkts k am Ende der Periode t
+
+Y(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -2       ZFkt
+       -1       Lbil(k7,t2)
+        1       Lbil(k7,t4)
+
+Y(k7,t4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -2       ZFkt
+       -1       Lbil(k7,t4)
+        1       Lbil(k7,t6)
+
+Y(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -2       ZFkt
+       -1       Lbil(k7,t6)
+        1       Lbil(k7,t10)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- Yr  Lagerbestand von Produktrückkehrern des Produkts k am Ende der Periode t
+
+Yr(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       ZFkt
+       -1       Lbilr(k7,t2)
+        1       Lbilr(k7,t4)
+
+Yr(k7,t4)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       ZFkt
+       -1       Lbilr(k7,t4)
+        1       Lbilr(k7,t6)
+
+Yr(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       ZFkt
+       -1       Lbilr(k7,t6)
+        1       Lbilr(k7,t10)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- gamma  binaere Rüstvariable für Produkt k in Periode t
+
+gamma(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapres(t2)
+  -100000       Ruestbedingung(k7,t2)
+
+gamma(k7,t4)
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 11
+CLSP-RM-SS
+Column Listing      SOLVE CLSPRMSS Using MIP From line 235
+
+
+     gamma  binaere Rüstvariable für Produkt k in Periode t
+
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapres(t4)
+  -100000       Ruestbedingung(k7,t4)
+
+gamma(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapres(t6)
+  -100000       Ruestbedingung(k7,t6)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- gammar  binaere Rüstvariable für Wiederverarbeitung des Produkts k in Periode t
+
+gammar(k7,t2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapresr(t2)
+  -100000       Ruestbedingungr(k7,t2)
+
+gammar(k7,t4)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapresr(t4)
+  -100000       Ruestbedingungr(k7,t4)
+
+gammar(k7,t6)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+    -1000       ZFkt
+       30       Kapresr(t6)
+  -100000       Ruestbedingungr(k7,t6)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- ZF  Zielfunktionswert
+
+ZF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       ZFkt
+
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 12
+CLSP-RM-SS
+Model Statistics    SOLVE CLSPRMSS Using MIP From line 235
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           7     SINGLE EQUATIONS           73
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES           97
+NON ZERO ELEMENTS           329     DISCRETE VARIABLES         32
+
+
+GENERATION TIME      =        0.171 SECONDS      4 Mb  WEX239-239 Sep 26, 2012
+
+
+EXECUTION TIME       =        0.171 SECONDS      4 Mb  WEX239-239 Sep 26, 2012
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 13
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   CLSPRMSS            OBJECTIVE  ZF
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  235
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE           126655.0000
+
+ RESOURCE USAGE, LIMIT          0.328      1000.000
+ ITERATION COUNT, LIMIT      4577    2000000000
+
+IBM ILOG CPLEX   Jul  4, 2012 23.9.3 WEX 34973.35450 WEI x86_64/MS Windows
+Cplex 12.4.0.1
+
+MIP status(101): integer optimal solution
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Proven optimal solution.
+
+MIP Solution:       126655.000000    (4549 iterations, 502 nodes)
+Final Solve:        126655.000000    (28 iterations)
+
+Best possible:      126655.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU ZFkt                .              .              .             1.0000      
+
+  ZFkt  Minimierung der Gesamtkosten
+
+---- EQU Lbil  Lagerbilanzgleichung für verarbeitete Produkte
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2        120.0000       120.0000       120.0000       100.0000      
+k7 .t4         80.0000        80.0000        80.0000       101.0000      
+k7 .t6         80.0000        80.0000        80.0000       103.0000      
+k7 .t10        70.0000        70.0000        70.0000       105.0000      
+k8 .t2         60.0000        60.0000        60.0000       100.0000      
+k8 .t4         50.0000        50.0000        50.0000       102.0000      
+k8 .t6         80.0000        80.0000        80.0000       104.0000      
+k8 .t10        90.0000        90.0000        90.0000       100.0000      
+k11.t2         50.0000        50.0000        50.0000       100.0000      
+k11.t4        100.0000       100.0000       100.0000       102.0000      
+k11.t6        120.0000       120.0000       120.0000       100.0000      
+k11.t10       160.0000       160.0000       160.0000       102.0000      
+k12.t2         20.0000        20.0000        20.0000       100.0000      
+k12.t4         70.0000        70.0000        70.0000       101.0000      
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 14
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+     EQU Lbil  Lagerbilanzgleichung für verarbeitete Produkte
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k12.t6        100.0000       100.0000       100.0000       103.0000      
+k12.t10       140.0000       140.0000       140.0000       100.0000      
+
+---- EQU Lbilr  Lagerbilanzgleichung für Produktrückkehrer
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2        -70.0000       -70.0000       -70.0000        50.0000      
+k7 .t4        -30.0000       -30.0000       -30.0000        51.0000      
+k7 .t6        -40.0000       -40.0000       -40.0000        52.0000      
+k7 .t10       -30.0000       -30.0000       -30.0000        53.0000      
+k8 .t2        -30.0000       -30.0000       -30.0000        51.0000      
+k8 .t4        -30.0000       -30.0000       -30.0000        52.0000      
+k8 .t6        -50.0000       -50.0000       -50.0000        53.0000      
+k8 .t10       -50.0000       -50.0000       -50.0000        48.0000      
+k11.t2        -30.0000       -30.0000       -30.0000        51.0000      
+k11.t4        -60.0000       -60.0000       -60.0000        52.0000      
+k11.t6        -70.0000       -70.0000       -70.0000        49.0000      
+k11.t10       -40.0000       -40.0000       -40.0000        50.0000      
+k12.t2        -20.0000       -20.0000       -20.0000        50.0000      
+k12.t4        -30.0000       -30.0000       -30.0000        51.0000      
+k12.t6        -40.0000       -40.0000       -40.0000        52.0000      
+k12.t10       -40.0000       -40.0000       -40.0000        -1.0000      
+
+---- EQU Kapres  Kapazitaetrestriktion für Produktion
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+t2         -INF          490.0000       500.0000          .          
+t4         -INF          500.0000       500.0000        -0.5000      
+t6         -INF          370.0000       500.0000          .          
+t10        -INF          420.0000       500.0000          .          
+
+---- EQU Kapresr  Kapazitaetsrestriktion für Wiederverarbeitung
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+t2         -INF          220.0000       500.0000          .          
+t4         -INF          320.0000       500.0000          .          
+t6         -INF          500.0000       500.0000        -0.5000      
+t10        -INF          500.0000       500.0000        -1.0000      
+
+---- EQU Ruestbedingung  Ruestbedingung für Produktion
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2         -INF       -99940.0000          .              .          
+k7 .t4         -INF       -99880.0000          .              .          
+k7 .t6         -INF             .              .            -3.0000      
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 15
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+     EQU Ruestbedingung  Ruestbedingung für Produktion
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t10        -INF             .              .            -5.0000      
+k8 .t2         -INF       -99920.0000          .              .          
+k8 .t4         -INF             .              .            -1.0000      
+k8 .t6         -INF             .              .            -4.0000      
+k8 .t10        -INF       -99960.0000          .              .          
+k11.t2         -INF       -99940.0000          .              .          
+k11.t4         -INF             .              .            -1.0000      
+k11.t6         -INF       -99830.0000          .              .          
+k11.t10        -INF             .              .            -2.0000      
+k12.t2         -INF             .              .              .          
+k12.t4         -INF       -99900.0000          .              .          
+k12.t6         -INF             .              .            -3.0000      
+k12.t10        -INF       -99860.0000          .              .          
+
+---- EQU Ruestbedingungr  Ruestbedingung für Wiederverarbeitung
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2         -INF       -99940.0000          .              .          
+k7 .t4         -INF             .              .              .          
+k7 .t6         -INF       -99935.0000          .              .          
+k7 .t10        -INF       -99955.0000          .              .          
+k8 .t2         -INF             .              .              .          
+k8 .t4         -INF       -99960.0000          .              .          
+k8 .t6         -INF       -99930.0000          .              .          
+k8 .t10        -INF       -99950.0000          .              .          
+k11.t2         -INF             .              .              .          
+k11.t4         -INF       -99910.0000          .              .          
+k11.t6         -INF             .              .              .          
+k11.t10        -INF       -99890.0000          .              .          
+k12.t2         -INF       -99980.0000          .              .          
+k12.t4         -INF             .              .              .          
+k12.t6         -INF       -99930.0000          .              .          
+k12.t10        -INF             .              .           -49.0000      
+
+---- VAR Q  Produktionsmenge des Produkts k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .            60.0000        +INF             .          
+k7 .t4           .           120.0000        +INF             .          
+k7 .t6           .              .            +INF             .          
+k7 .t10          .              .            +INF             .          
+k8 .t2           .            80.0000        +INF             .          
+k8 .t4           .              .            +INF             .          
+k8 .t6           .              .            +INF             .          
+k8 .t10          .            40.0000        +INF             .          
+k11.t2           .            60.0000        +INF             .          
+k11.t4           .              .            +INF             .          
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 16
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+     VAR Q  Produktionsmenge des Produkts k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k11.t6           .           170.0000        +INF             .          
+k11.t10          .              .            +INF             .          
+k12.t2           .              .            +INF            EPS         
+k12.t4           .           100.0000        +INF             .          
+k12.t6           .              .            +INF             .          
+k12.t10          .           140.0000        +INF             .          
+
+---- VAR Qr  Wiederaufbereitungsmenge des Produkts k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .            60.0000        +INF             .          
+k7 .t4           .              .            +INF            EPS         
+k7 .t6           .            65.0000        +INF             .          
+k7 .t10          .            45.0000        +INF             .          
+k8 .t2           .              .            +INF            1.0000      
+k8 .t4           .            40.0000        +INF             .          
+k8 .t6           .            70.0000        +INF             .          
+k8 .t10          .            50.0000        +INF             .          
+k11.t2           .              .            +INF            1.0000      
+k11.t4           .            90.0000        +INF             .          
+k11.t6           .              .            +INF            EPS         
+k11.t10          .           110.0000        +INF             .          
+k12.t2           .            20.0000        +INF             .          
+k12.t4           .              .            +INF            EPS         
+k12.t6           .            70.0000        +INF             .          
+k12.t10          .              .            +INF             .          
+
+---- VAR Y  Lagerbestand des Produkts k am Ende der Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .              .            +INF            1.0000      
+k7 .t4           .            40.0000        +INF             .          
+k7 .t6           .            25.0000        +INF             .          
+k7 .t10          .              .            +INF          107.0000      
+k8 .t2           .            20.0000        +INF             .          
+k8 .t4           .            10.0000        +INF             .          
+k8 .t6           .              .            +INF            6.0000      
+k8 .t10          .              .            +INF          102.0000      
+k11.t2           .            10.0000        +INF             .          
+k11.t4           .              .            +INF            4.0000      
+k11.t6           .            50.0000        +INF             .          
+k11.t10          .              .            +INF          104.0000      
+k12.t2           .              .            +INF            1.0000      
+k12.t4           .            30.0000        +INF             .          
+k12.t6           .              .            +INF            5.0000      
+k12.t10          .              .            +INF          102.0000      
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 17
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+---- VAR Yr  Lagerbestand von Produktrückkehrern des Produkts k am Ende der Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .            10.0000        +INF             .          
+k7 .t4           .            40.0000        +INF             .          
+k7 .t6           .            15.0000        +INF             .          
+k7 .t10          .              .            +INF           54.0000      
+k8 .t2           .            30.0000        +INF             .          
+k8 .t4           .            20.0000        +INF             .          
+k8 .t6           .              .            +INF            6.0000      
+k8 .t10          .              .            +INF           49.0000      
+k11.t2           .            30.0000        +INF             .          
+k11.t4           .              .            +INF            4.0000      
+k11.t6           .            70.0000        +INF             .          
+k11.t10          .              .            +INF           51.0000      
+k12.t2           .              .            +INF             .          
+k12.t4           .            30.0000        +INF             .          
+k12.t6           .              .            +INF           54.0000      
+k12.t10          .            40.0000        +INF             .          
+
+---- VAR gamma  binaere Rüstvariable für Produkt k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .             1.0000         1.0000      1000.0000      
+k7 .t4           .             1.0000         1.0000      1015.0000      
+k7 .t6           .              .             1.0000   -299000.0000      
+k7 .t10          .              .             1.0000   -499000.0000      
+k8 .t2           .             1.0000         1.0000      1000.0000      
+k8 .t4           .              .             1.0000    -98985.0000      
+k8 .t6           .              .             1.0000   -399000.0000      
+k8 .t10          .             1.0000         1.0000      1000.0000      
+k11.t2           .             1.0000         1.0000      1000.0000      
+k11.t4           .              .             1.0000    -98985.0000      
+k11.t6           .             1.0000         1.0000      1000.0000      
+k11.t10          .              .             1.0000   -199000.0000      
+k12.t2           .              .             1.0000      1000.0000      
+k12.t4           .             1.0000         1.0000      1015.0000      
+k12.t6           .              .             1.0000   -299000.0000      
+k12.t10          .             1.0000         1.0000      1000.0000      
+
+---- VAR gammar  binaere Rüstvariable für Wiederverarbeitung des Produkts k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k7 .t2           .             1.0000         1.0000      1000.0000      
+k7 .t4           .              .             1.0000      1000.0000      
+k7 .t6           .             1.0000         1.0000      1015.0000      
+k7 .t10          .             1.0000         1.0000      1030.0000      
+k8 .t2           .              .             1.0000      1000.0000      
+k8 .t4           .             1.0000         1.0000      1000.0000      
+k8 .t6           .             1.0000         1.0000      1015.0000      
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 18
+CLSP-RM-SS
+Solution Report     SOLVE CLSPRMSS Using MIP From line 235
+
+
+     VAR gammar  binaere Rüstvariable für Wiederverarbeitung des Produkts k in Periode t
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+k8 .t10          .             1.0000         1.0000      1030.0000      
+k11.t2           .              .             1.0000      1000.0000      
+k11.t4           .             1.0000         1.0000      1000.0000      
+k11.t6           .              .             1.0000      1015.0000      
+k11.t10          .             1.0000         1.0000      1030.0000      
+k12.t2           .             1.0000         1.0000      1000.0000      
+k12.t4           .              .             1.0000      1000.0000      
+k12.t6           .             1.0000         1.0000      1015.0000      
+k12.t10          .              .             1.0000   -4.898970E+6      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR ZF                -INF       126655.0000        +INF             .          
+
+  ZF  Zielfunktionswert
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 19
+CLSP-RM-SS
+E x e c u t i o n
+
+
+----    238 VARIABLE Q.L  Produktionsmenge des Produkts k in Periode t
+
+             t2          t4          t6         t10
+
+k7       60.000     120.000
+k8       80.000                              40.000
+k11      60.000                 170.000
+k12                 100.000                 140.000
+
+
+----    238 VARIABLE Qr.L  Wiederaufbereitungsmenge des Produkts k in Periode t
+
+             t2          t4          t6         t10
+
+k7       60.000                  65.000      45.000
+k8                   40.000      70.000      50.000
+k11                  90.000                 110.000
+k12      20.000                  70.000
+
+
+----    238 VARIABLE Y.L  Lagerbestand des Produkts k am Ende der Periode t
+
+             t2          t4          t6
+
+k7                   40.000      25.000
+k8       20.000      10.000
+k11      10.000                  50.000
+k12                  30.000
+
+
+----    238 VARIABLE Yr.L  Lagerbestand von Produktrückkehrern des Produkts k am Ende der Periode t
+
+             t2          t4          t6         t10
+
+k7       10.000      40.000      15.000
+k8       30.000      20.000
+k11      30.000                  70.000
+k12                  30.000                  40.000
+
+
+**** REPORT FILE SUMMARY
+
+outputfile1 C:\Sites\rails_projects\sample_app\Produktionsprogramm.txt
+outputfile2 C:\Sites\rails_projects\sample_app\Zielfunktionswert.txt
+
+
+EXECUTION TIME       =        0.000 SECONDS      3 Mb  WEX239-239 Sep 26, 2012
+GAMS Rev 239  WEX-WEI 23.9.3 x86_64/MS Windows                                                                                                                                                                                        03/13/14 21:16:52 Page 20
+CLSP-RM-SS
+E x e c u t i o n
+
+
+USER: Kurslizenz                                     S130222/0001AN-GEN
+      Leibniz University Hannover, Lehrstuhl fuer ProduktionswirtDC6657
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Sites\rails_projects\sample_app\CLSP_RM_SS.gms
+Output     C:\Sites\rails_projects\sample_app\CLSP_RM_SS.lst

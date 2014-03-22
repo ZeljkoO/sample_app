@@ -1,0 +1,40 @@
+<h1>Demand and Returns</h1>
+
+<table class="table" id="demand_and_product_returns">
+  <tr>
+    <th>Period</th>
+    <th>Product</th>
+    <th>Demand</th>
+    <th>Returns</th>
+    <th>Production Quantity</th>
+    <th>Remanufacturing Quantity</th>
+    <th>Serviceable Inventory</th>
+    <th>Recoverable Inventory</th>
+    <th></th>
+    <th></th>
+    <th></th>
+
+
+
+  </tr>
+
+  <% @demand_and_product_returns.each do |demand_and_product_return| %>
+      <tr>
+        <td><%= demand_and_product_return.period.number %></td>
+        <td><%= demand_and_product_return.product.name %></td>
+        <td><%= best_in_place demand_and_product_return, :demand, :type => :input %></td>
+        <td><%= best_in_place demand_and_product_return, :return, :type => :input %></td>
+        <td><%= demand_and_product_return.production_quantity %></td>
+        <td><%= demand_and_product_return.remanufacturing_quantity %></td>
+        <td><%= demand_and_product_return.serviceable_inventory %></td>
+        <td><%= demand_and_product_return.recoverable_inventory %></td>
+        <td><%= link_to 'Edit', edit_demand_and_product_return_path(demand_and_product_return) %></td>
+        <td><%= link_to 'Delete', demand_and_product_return, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+</table>
+
+<br />
+
+<%= link_to 'Add Demand and Returns', new_demand_and_product_return_path %> <br> <br>
+<%= link_to 'Back', current_user %>

@@ -1,0 +1,37 @@
+<h1>Parameters for Serviceable Products</h1>
+
+<table class="table" id="production_parameters">
+  <tr>
+    <th>Product</th>
+    <th>Family</th>
+    <th>Production Cost</th>
+    <th>Production Time</th>
+    <th>Setup Cost</th>
+    <th>Setup Time</th>
+    <th>Holding Cost</th>
+    <th>Initial Inventory</th>
+    <th></th>
+    <th></th>
+
+  </tr>
+
+  <% @production_parameters.each do |production_parameter| %>
+      <tr>
+        <td><%= production_parameter.product.name %></td>
+        <td><%= production_parameter.product.product_family %></td>
+        <td><%= best_in_place production_parameter, :production_cost, :type => :input %></td>
+        <td><%= best_in_place production_parameter, :production_time, :type => :input %></td>
+        <td><%= best_in_place production_parameter, :setup_cost, :type => :input %></td>
+        <td><%= best_in_place production_parameter, :setup_time, :type => :input %></td>
+        <td><%= best_in_place production_parameter, :holding_cost, :type => :input %></td>
+        <td><%= best_in_place production_parameter, :initial_inventory, :type => :input %></td>
+        <td><%= link_to 'Edit', edit_production_parameter_path(production_parameter) %></td>
+        <td><%= link_to 'Delete', production_parameter, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+  <% end %>
+</table>
+
+<br />
+
+<%= link_to 'Add Parameters for Serviceable Product', new_production_parameter_path %> <br> <br>
+<%= link_to 'Back', current_user %>

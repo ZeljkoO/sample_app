@@ -1,26 +1,29 @@
 <% if signed_in? %>
-    <div class="row">
-      <aside class="span4">
-        <section>
-          <%= render 'shared/user_info' %>
-        </section>
-        <section>
-          <%= render 'shared/micropost_form' %>
-        </section>
-      </aside>
-      <div class="span8">
-        <h3>Micropost Feed</h3>
-        <%= render 'shared/feed' %>
-      </div>
-    </div>
+
+    <p>
+    <h2>Solve Lot-Sizing Problem in Closed-Loop Supply Chains!   </h2> <br>     <br>
+
+    <%= link_to "Update Products!", products_path %><br>
+    <%= link_to "Update Capacities per Period!", periods_path %><br>
+    <%= link_to "Update Parameters for Serviceable Products!", production_parameters_path %><br>
+    <%= link_to "Update Parameters for Recoverable Products!", remanufacturing_parameters_path %><br>
+    <%= link_to "Update Demand and Returns!", demand_and_product_returns_path %><br>
+    <%= %><br>
+    <%= button_to "Destroy Solution", :controller => 'demand_and_product_returns', :action =>  'delete_solution' %>
+    <%= button_to "Solve Problem", :controller => 'demand_and_product_returns', :action =>  'optimize'  %>
+    <%= button_to "Read Solution", :controller => 'demand_and_product_returns', :action =>  'read_solution'%>
+
+
+
+
+    </p>
+
+
 <% else %>
     <div class="center hero-unit">
-      <h1>Welcome to the Sample App</h1>
+      <h1>Capacitated Lot-Sizing in Closed-Loop Supply Chains</h1>
 
       <h2>
-        This is the home page for the
-        <a href="http://railstutorial.org/">Ruby on Rails Tutorial</a>
-        sample application.
       </h2>
 
       <%= link_to "Sign up now!", signup_path,
@@ -28,4 +31,6 @@
     </div>
 
     <%= link_to image_tag("rails.png", alt: "Rails"), 'http://rubyonrails.org/' %>
+
+    <%= link_to image_tag("gams.jpg", alt: "gams"), 'http://www.gams.de//' %>
 <% end %>

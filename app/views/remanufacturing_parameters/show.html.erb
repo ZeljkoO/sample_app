@@ -1,0 +1,16 @@
+<!--<p id="notice"><%= notice %></p> -->
+
+
+<p>
+  <b>Product Name:</b>
+  <%= @product.name %>
+</p>
+
+<p>
+  <b>Product Family:</b>
+  <%= @product.product_family %>
+</p>
+
+
+<%= link_to 'Update', edit_product_path(@product) %> <br><br>
+<%= link_to 'Back', products_path %>

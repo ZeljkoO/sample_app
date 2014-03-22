@@ -8,13 +8,26 @@
       </h1>
     </section>
   </aside>
-  <div class="span8">
-    <% if @user.microposts.any? %>
-        <h3>Microposts (<%= @user.microposts.count %>)</h3>
-        <ol class="microposts">
-          <%= render @microposts %>
-        </ol>
-        <%= will_paginate @microposts %>
-    <% end %>
-  </div>
+
+
+
 </div>
+
+<% if signed_in? %>
+    <p>
+    <h2>Solve Lot-Sizing Problem in Closed-Loop Supply Chains!   </h2> <br>     <br>
+
+      <%= link_to "Update Products!", products_path %><br>
+      <%= link_to "Update Capacities per Period!", periods_path %><br>
+      <%= link_to "Update Parameters for Serviceable Products!", production_parameters_path %><br>
+      <%= link_to "Update Parameters for Recoverable Products!", remanufacturing_parameters_path %><br>
+      <%= link_to "Update Demand and Returns!", demand_and_product_returns_path %><br>
+      <%= %><br>
+      <%= button_to "Destroy Solution", :controller => 'demand_and_product_returns', :action =>  'delete_solution' %>
+      <%= button_to "Solve Problem", :controller => 'demand_and_product_returns', :action =>  'optimize'  %>
+      <%= button_to "Read Solution", :controller => 'demand_and_product_returns', :action =>  'read_solution'%>
+
+    </p>
+
+<% end %>
+
